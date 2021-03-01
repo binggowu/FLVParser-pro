@@ -6,7 +6,6 @@
 
 CVideojj::CVideojj()
 {
-
 }
 
 CVideojj::~CVideojj()
@@ -22,11 +21,12 @@ CVideojj::~CVideojj()
 // 下面这个函数的功能大致就是往视频中写入SEI信息
 int CVideojj::Process(uint8_t *pNalu, int nNaluLen, int nTimeStamp)
 {
-    // 如果起始码后面的两个字节是0x05或者0x06，那么表示IDR图像或者SEI信息
+	// 如果起始码后面的两个字节是0x05或者0x06，那么表示IDR图像或者SEI信息
 	if (pNalu[4] != 0x06 || pNalu[5] != 0x05)
 		return 0;
-    uint8_t *p = pNalu + 4 + 2;
-	while (*p++ == 0xff);
+	uint8_t *p = pNalu + 4 + 2;
+	while (*p++ == 0xff)
+		;
 	const char *szVideojjUUID = "VideojjLeonUUID";
 	char *pp = (char *)p;
 	for (int i = 0; i < strlen(szVideojjUUID); i++)
@@ -34,7 +34,7 @@ int CVideojj::Process(uint8_t *pNalu, int nNaluLen, int nTimeStamp)
 		if (pp[i] != szVideojjUUID[i])
 			return 0;
 	}
-	
+
 	VjjSEI sei;
 	sei.nTimeStamp = nTimeStamp;
 	sei.nLen = nNaluLen - (pp - (char *)pNalu) - 16 - 1;
